@@ -8,11 +8,13 @@ xlToLeft=-4159	#To left.
 xlToRight=-4161 #To right.
 xlUp=-4162	#Up.
 
+
 #通用
 xlCenter=-4108  #Center
 xlBottom=-4107	#Bottom
 xlTop=-4160	#Top
-
+xlAutomatic=-4105	#Automatic
+xlSolid=1	#Solid
 
 #保存的文档类型
 xlAddIn=18        #Description    Microsoft Excel 97-2003 Add-In    Extension*.xla
@@ -71,3 +73,30 @@ xlWorkbookNormal=-4143        #Description    Workbook normal    Extension*.xls
 xlWorks2FarEast=28        #Description    Microsoft Works 2.0 far east format    Extension*.wks
 xlWQ1=34        #Description    Quattro Pro format    Extension*.wq1
 xlXMLSpreadsheet=46        #Description    XML Spreadsheet    Extension*.xml
+
+
+#XlBordersIndex 边框
+xlDiagonalDown=5	#Border running from the upper-left corner to the lower-right of each cell in the range.
+xlDiagonalUp=6	#Border running from the lower-left corner to the upper-right of each cell in the range.
+xlEdgeBottom=9	#Border at the bottom of the range.
+xlEdgeLeft=7	#Border at the left edge of the range.
+xlEdgeRight=10	#Border at the right edge of the range.
+xlEdgeTop=8	#Border at the top of the range.
+xlInsideHorizontal=12	#Horizontal borders for all cells in the range except borders on the outside of the range.
+xlInsideVertical=11	#Vertical borders for all the cells in the range except borders on the outside of the range.
+
+#XlLineStyle 线段样式
+xlContinuous=1	#Continuous line.
+xlDash=-4115	#Dashed line.
+xlDashDot=4	#Alternating dashes and dots.
+xlDashDotDot=5	#Dash followed by two dots.
+xlDot=-4142	#Dotted line.
+xlDouble=-4119	#Double line.
+xlLineStyleNone=-4118	#No line.
+xlSlantDashDot=13	#Slanted dashes.
+
+#XlBorderWeight
+xlHairline	=1	#Hairline (thinnest border).
+xlMedium	=-4138	#Medium.
+xlThick	=4	#Thick (widest border).
+xlThin	=2	#Thin.
