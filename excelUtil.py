@@ -1,9 +1,21 @@
 import sys,os
+import win32com.client
 from xlConst import *
 class xlColor:
     GRAY=0xe8e8e8
 
 class ExcelUtil():
+    @staticmethod
+    def newExcel():
+        excel=win32com.client.Dispatch("excel.application")
+        excel.Visible=True
+        excel.DisplayAlerts=False
+        return excel
+
+    @staticmethod
+    def openWkb(excel,f,readOnly=False):
+        return excel.Workbooks.Open(f,ReadOnly=readOnly)
+
     def setBorders(self,rng):
         for i in [xlEdgeLeft,xlEdgeRight,xlEdgeTop,xlEdgeBottom,xlInsideVertical,xlInsideHorizontal]:
             rng.Borders(i).LineStyle=xlContinuous
