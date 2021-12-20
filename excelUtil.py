@@ -1,12 +1,15 @@
 import sys,os
 import win32com.client
+import pythoncom
 from xlConst import *
 class xlColor:
     GRAY=0xe8e8e8
 
 class ExcelUtil():
+
     @staticmethod
     def newExcel():
+        pythoncom.CoInitialize()
         excel=win32com.client.Dispatch("excel.application")
         excel.Visible=True
         excel.DisplayAlerts=False

@@ -7,6 +7,7 @@ class ExcelSht(ExcelUtil):
         self.headRow=None
         self.sht=None
         self.headColDic=None
+
     @property
     def maxRow(self):
         return self.sht.UsedRange.Rows.Count - self.sht.UsedRange.Row + 1
