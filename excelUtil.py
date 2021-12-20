@@ -10,7 +10,7 @@ class ExcelUtil():
     @staticmethod
     def newExcel():
         pythoncom.CoInitialize()
-        excel=win32com.client.Dispatch("excel.application")
+        excel=win32com.client.DispatchEx("excel.application")
         excel.Visible=True
         excel.DisplayAlerts=False
         return excel
