@@ -6,7 +6,6 @@ class xlColor:
     GRAY=0xe8e8e8
 
 class ExcelUtil():
-
     @staticmethod
     def newExcel():
         pythoncom.CoInitialize()
@@ -14,7 +13,6 @@ class ExcelUtil():
         excel.Visible=True
         excel.DisplayAlerts=False
         return excel
-
     @staticmethod
     def openWkb(excel,f,readOnly=False):
         return excel.Workbooks.Open(f,ReadOnly=readOnly)
@@ -43,3 +41,9 @@ class ExcelUtil():
             return sht.UsedRange.Columns.Count - sht.UsedRange.Column + 1
     def closeAllExcel(self):
         os.system('taskkill  /F /IM excel.exe /T')
+    def mkDirs(self,dir):
+        predir,_=os.path.split(dir)
+        if not os.path.exists(predir):
+            self.mkDirs(predir)
+        else:
+            os.mkdir(dir)

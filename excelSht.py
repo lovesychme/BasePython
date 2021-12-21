@@ -24,6 +24,17 @@ class ExcelSht(ExcelUtil):
             if val:
                 dic[val]=i
         self.headColDic=dic
+    def get_all_data(self):
+        sht=self.sht
+        data=[]
+        for iRow in range(self.headRow,self.maxRow+1):
+            dic={}
+            for iCol in range(1,self.maxCol+1):
+                head=sht.Cells(self.headRow,iCol).Value
+                val=sht.Cells(iRow,iCol).Value
+                dic[head]=val
+            data.append(dic)
+        return data
 
     def addData(self,dic:dict):
         row=self.maxRow+1
@@ -34,7 +45,6 @@ class ExcelSht(ExcelUtil):
         self.sht.Rows(rowNumber).Delete(Shift=xlUp)
     def deleteRngXlUp(self,rng):
         rng.Delete(Shift=xlUp)
-
     def setValueColor(self,rng,value,color=None):
         rng.Value=value
         rng.Interior.Color=color
