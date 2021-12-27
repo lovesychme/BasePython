@@ -1,6 +1,13 @@
-import sys,os
-import win32com.client
+
+import datetime
+import os
 import pythoncom
+import sys
+import time
+import win32com.client
+
+
+
 from xlConst import *
 class xlColor:
     GRAY=0xe8e8e8
@@ -47,3 +54,11 @@ class ExcelUtil():
             self.mkDirs(predir)
         else:
             os.mkdir(dir)
+
+    def toPyDate(self, date):
+        if isinstance(date,datetime.datetime):
+            r:time.struct_time=time.strptime(f'{date.year}-{date.month}-{date.day}','%Y-%m-%d')
+            return r
+        return None
+    def isDateTime(self,date):
+        return isinstance(date,datetime,datetime)

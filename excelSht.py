@@ -6,39 +6,41 @@ class ExcelSht(ExcelUtil):
     SHT_NAME='UnTitle'
     def __init__(self):
         self.titleRow=None
+        self.title=None
         self.headRow=None
         self.sht=None
-        self.headColDic=None
         self.primaryKeys:[]=None   #行数据的关键字段
         self.heads:[]=None
+
+        self.__headColDic:{}= None
+        self._keyRowDic:{}=None
     @property
     def maxRow(self):
         return self.sht.UsedRange.Rows.Count - self.sht.UsedRange.Row + 1
     @property
     def maxCol(self):
         return self.sht.UsedRange.Columns.Count - self.sht.UsedRange.Column + 1
-    def getCol(self,head:str):
-        return self.headColDic[head]
-    def initSht(self, sht):
-        self.sht = sht
-        dic={}
-        for i in range(1,self.maxCol+1):
-            val=sht.Cells(self.headRow,i).Value
-            if val:
-                dic[val]=i
-        self.headColDic=dic
 
-        if self.primaryKeys:
-            keyCols=[self.headColDic[item] for item in self.primaryKeys]
-            for iRow in range(self.headRow+1, self.maxRow):
-                key=self.KEY_BREAK.join([sht.Cells(iRow,iCol).Value for iCol in keyCols])
-                self.keyRowDic[key]=iRow
+    def append(self, dic:dict):
+        row=self.maxRow+1
+        for k,v in dic.items():
+            if k in self.__headColDic:
+                self.sht.Cells(row, self.__headColDic[k]).Value=v
+    def deleteData(self):
+        sht=self.sht
+        if self.maxCol<=self.headRow:
+            return
+        rng=sht.Rows(f'{self.headRow+1}:{self.maxRow}')
+        self.deleteRngXlUp(rng)
+    def deleteRow(self,rowNumber):
+        self.sht.Rows(rowNumber).Delete(Shift=xlUp)
+    def deleteRngXlUp(self,rng):
+        rng.Delete(Shift=xlUp)
 
-
-    def get_all_data(self):
+    def getAllDic(self):
         sht=self.sht
         data=[]
-        for iRow in range(self.headRow,self.maxRow+1):
+        for iRow in range(self.headRow+1,self.maxRow+1):
             dic={}
             for iCol in range(1,self.maxCol+1):
                 head=sht.Cells(self.headRow,iCol).Value
@@ -47,24 +49,72 @@ class ExcelSht(ExcelUtil):
             data.append(dic)
         return data
 
-    def deleteRow(self,rowNumber):
-        self.sht.Rows(rowNumber).Delete(Shift=xlUp)
-    def deleteRngXlUp(self,rng):
-        rng.Delete(Shift=xlUp)
+    def getCol(self,head:str):
+        return self.__headColDic[head]
+
+    def getKeysRow(self, keys):
+        key = self.KEY_BREAK.join([str(k) for k in keys])
+        return self._keyRowDic.get(key, None)
+
+    def getKeysData(self, keys):
+        key = self.KEY_BREAK.join([str(k) for k in keys])
+        row=self._keyRowDic.get(key, None)
+        if row:
+            dic={}
+            sht=self.sht
+            for colName,col in self.__headColDic.items():
+                dic[colName]=sht.Cells(row,col).Value
+            return dic
+    def getKeysValue(self, keys, head):
+        key=self.KEY_BREAK.join(keys)
+        if key in self._keyRowDic:
+            return self.sht.Cells(self._keyRowDic[key], self.__headColDic[head]).Value
+
+    def initSht(self, sht):
+        self.sht = sht
+        dic={}
+        for i in range(1,self.maxCol+1):
+            val=sht.Cells(self.headRow,i).Value
+            if val:
+                dic[val]=i
+        self.__headColDic=dic
+
+        if self.primaryKeys:
+            self._keyRowDic={}
+            keyCols=[self.__headColDic[item] for item in self.primaryKeys]
+            for iRow in range(self.headRow+1, self.maxRow+1):
+                key=self.KEY_BREAK.join([str(sht.Cells(iRow,iCol).Value) for iCol in keyCols])
+                self._keyRowDic[key]=iRow
+    def new(self, sht):
+        sht.Name = self.SHT_NAME
+        self.sht = sht
+        # 填写Heads
+        self.setHeadsRng(self.heads)
+
+        # 填写Title
+        rng = sht.Range(sht.Cells(self.titleRow, 1), sht.Cells(self.titleRow, self.maxCol))
+        if self.title:
+            self.setTitleRng(rng, self.title)
+        else:
+            self.setTitleRng(rng, sht.Name)
+        self.initSht(sht)
+
+    def setKeysValue(self, keys, head, value):
+        key = self.KEY_BREAK.join(keys)
+        if key not in self._keyRowDic:
+            self.addKey(key)
+        self.sht.Cells(self._keyRowDic[key], self.__headColDic[head]).Value = value
+
+    def setRowValue(self,row,head,value):
+        col=self.__headColDic.get(head,None)
+        if col:
+            self.sht.Cells(row,col).Value=value
+
     def setValueColor(self,rng,value,color=None):
         rng.Value=value
         rng.Interior.Color=color
 
-    def writeTitle(self, rng, title, fontSize=12, fontBold=True):
-        #设置Title格式
-        self.setBorders(rng)
-        rng.Merge()
-        self.setAlignCenter(rng)
-        rng.Font.Size = fontSize
-        rng.Font.Bold = fontBold
-        rng.Value=title
-
-    def writeHeads(self,heads):
+    def setHeadsRng(self, heads):
         sht=self.sht
         for i,s in enumerate(heads):
             sht.Cells(self.headRow,i+1).Value=s
@@ -77,30 +127,11 @@ class ExcelSht(ExcelUtil):
         self.backColor=xlColor.GRAY
         self.setBorders(rng)
 
-    def new(self, sht):
-        sht.Name = self.SHT_NAME
-        self.sht = sht
-        # 填写Heads
-        self.writeHeads(self.heads)
-
-        # 填写Title
-        rng = sht.Range(sht.Cells(self.titleRow, 1), sht.Cells(self.titleRow, self.maxCol))
-        self.writeTitle(rng, sht.Name)
-        self.initSht(sht)
-
-    def getItem(self,keys,item):
-        key=self.KEY_BREAK.join(keys)
-        if key in self.keyRowDic:
-            return self.sht.Cells(self.keyRowDic[key],self.headColDic[item]).Value
-
-    def setKeyItem(self,keys,item,value):
-        key = self.KEY_BREAK.join(keys)
-        if key not in self.keyRowDic:
-            self.addKey(key)
-        self.sht.Cells(self.keyRowDic[key], self.headColDic[item]).Value = value
-
-    def append(self, dic:dict):
-        row=self.maxRow+1
-        for k,v in dic.items():
-            if k in self.headColDic:
-                self.sht.Cells(row,self.headColDic[k]).Value=v
+    def setTitleRng(self, rng, title, fontSize=12, fontBold=True):
+        #设置Title格式
+        self.setBorders(rng)
+        rng.Merge()
+        self.setAlignCenter(rng)
+        rng.Font.Size = fontSize
+        rng.Font.Bold = fontBold
+        rng.Value=title
