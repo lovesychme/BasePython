@@ -70,6 +70,11 @@ class ExcelSht(ExcelUtil):
         if key in self._keyRowDic:
             return self.sht.Cells(self._keyRowDic[key], self.__headColDic[head]).Value
 
+    def getRowCell(self,row,head):
+        col=self.__headColDic.get(head,None)
+        if col:
+            return self.sht.Cells(row,col)
+
     def initSht(self, sht):
         self.sht = sht
         dic={}
@@ -83,8 +88,14 @@ class ExcelSht(ExcelUtil):
             self._keyRowDic={}
             keyCols=[self.__headColDic[item] for item in self.primaryKeys]
             for iRow in range(self.headRow+1, self.maxRow+1):
-                key=self.KEY_BREAK.join([str(sht.Cells(iRow,iCol).Value) for iCol in keyCols])
-                self._keyRowDic[key]=iRow
+                keys=[]
+                for iCol in keyCols:
+                    val=sht.Cells(iRow,iCol).Value
+                    if val:
+                        keys.append(str(val))
+                if keys:
+                    key=self.KEY_BREAK.join(keys)
+                    self._keyRowDic[key]=iRow
     def new(self, sht):
         sht.Name = self.SHT_NAME
         self.sht = sht

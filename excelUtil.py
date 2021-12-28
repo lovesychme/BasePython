@@ -11,6 +11,11 @@ import win32com.client
 from xlConst import *
 class xlColor:
     GRAY=0xe8e8e8
+    BLUE=0xd59b5b
+    LIGHT_BLUE_0=0xf0b000 #stand ligiht blue
+    LIGHT_BLUE=0xf7ebdd  #80% light blue
+    GOLD=0xc0ff
+    LIGHT_GOLD=0xccf2ff  #80% light gold
 
 class ExcelUtil():
     @staticmethod
@@ -34,6 +39,17 @@ class ExcelUtil():
 
     def setBackColor(self,rng,color):
         rng.Interior.Color=color
+    def setBackColorBlue(self,rng):
+        rng.Interior.Color=xlColor.BLUE
+
+    def setBackColorGold(self,rng):
+        rng.Interior.Color=xlColor.GOLD
+    def setBackColorLightBlue0(self,rng):
+        rng.Interior.Color=xlColor.LIGHT_BLUE_0
+    def setBackColorLightBlue(self,rng):
+        rng.Interior.Color=xlColor.LIGHT_BLUE
+    def setBackColorLightGold(self,rng):
+        rng.Interior.Color=xlColor.LIGHT_GOLD
 
     def getMaxRow(self,sht,col=None):
         if col:
