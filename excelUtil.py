@@ -6,8 +6,6 @@ import sys
 import time
 import win32com.client
 
-
-
 from xlConst import *
 class xlColor:
     GRAY=0xe8e8e8
@@ -29,10 +27,9 @@ class ExcelUtil():
     def openWkb(excel,f,readOnly=False):
         return excel.Workbooks.Open(f,ReadOnly=readOnly)
 
-    def setBorders(self,rng):
-        for i in [xlEdgeLeft,xlEdgeRight,xlEdgeTop,xlEdgeBottom,xlInsideVertical,xlInsideHorizontal]:
-            rng.Borders(i).LineStyle=xlContinuous
-            rng.Borders(i).Weight=xlThin
+    def setAccountingFormat(self,rng):
+        rng.NumberFormatLocal = '_ * #,##0.00_ ;_ * -#,##0.00_ ;_ * "-"??_ ;_ @_ '
+
     def setAlignCenter(self,rng):
         rng.HorizontalAlignment=xlCenter
         rng.VerticalAlignment=xlCenter
@@ -51,6 +48,11 @@ class ExcelUtil():
     def setBackColorLightGold(self,rng):
         rng.Interior.Color=xlColor.LIGHT_GOLD
 
+    def setBorders(self,rng):
+        for i in [xlEdgeLeft,xlEdgeRight,xlEdgeTop,xlEdgeBottom,xlInsideVertical,xlInsideHorizontal]:
+            rng.Borders(i).LineStyle=xlContinuous
+            rng.Borders(i).Weight=xlThin
+
     def getMaxRow(self,sht,col=None):
         if col:
             return sht.Cells(sht.Rows.Count,col).End(xlUp).Row
@@ -62,6 +64,7 @@ class ExcelUtil():
             return sht.Cells(row,sht.Columns.Count).End(xlToLeft).Column
         else:
             return sht.UsedRange.Columns.Count - sht.UsedRange.Column + 1
+
     def closeAllExcel(self):
         os.system('taskkill  /F /IM excel.exe /T')
     def mkDirs(self,dir):
@@ -71,6 +74,11 @@ class ExcelUtil():
         else:
             os.mkdir(dir)
 
+    def toFloat(self,f):
+        try:
+            return float(f)
+        except:
+            return 0.00
     def toPyDate(self, date):
         if isinstance(date,datetime.datetime):
             r:time.struct_time=time.strptime(f'{date.year}-{date.month}-{date.day}','%Y-%m-%d')
