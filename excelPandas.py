@@ -2,7 +2,9 @@ from excelUtil import *
 from xlConst import *
 from excelSht import *
 
-class ExcelData(ExcelSht):
+import pandas as pd
+
+class ExcelPandas(ExcelSht):
     KEY_BREAK = '_@_'
     SHT_NAME = 'UnTitle'
 
@@ -17,7 +19,7 @@ class ExcelData(ExcelSht):
         self._headColDic: {} = None
         self._keyRowDic: {} = None
 
-        self.data:[]=None
+        self.data:pd.DataFrame=None
 
     @property
     def dataLength(self):
@@ -25,32 +27,28 @@ class ExcelData(ExcelSht):
 
     @property
     def dataWidth(self):
-        return len(self.data[0])
+        return len(self.data.columns)
 
     def append(self, dic: dict):
-        l=[None for x in range(len(self.heads))]
-        for k, v in dic.items():
-            if k in self._headColDic:
-                l[self._headColDic[k]] = v
-        self.data.append(l)
+        self.data=self.data.append(dic,ignore_index=True)
 
     def commit(self):
         sht=self.sht
-        data=self.data
+        data=self.data.values
         headRow=self.headRow
         self.deleteContentRng()
         sht.Range(sht.Cells(headRow+1,1),sht.Cells(headRow+len(data),len(data[0]))).Value=data
 
     def getAllDic(self):
         data=self.data
-        dic = []
+        result = []
         for iRow in range(len(data)):
             dic = {}
             for head , iCol in self._headColDic.items():
-                val=self.data[iRow][iCol]
+                val=self.data.iloc[iRow,iCol]
                 dic[head] = val
-            dic.append(dic)
-        return dic
+            result.append(dic)
+        return result
 
     def getCol(self,head:str):
         return self._headColDic[head]
@@ -61,7 +59,7 @@ class ExcelData(ExcelSht):
         if row!=None:
             dic = {}
             for colName, col in self._headColDic.items():
-                dic[colName] = self.data[row][col]
+                dic[colName] = self.data.iloc[row,col]
             return dic
 
     def getKeysRow(self, keys):
@@ -77,6 +75,8 @@ class ExcelData(ExcelSht):
         col = self._headColDic.get(head, None)
         if col:
             return self.sht.Cells(row, col)
+    def getValue(self,row,col):
+        return self.data.iloc[row,col]
 
     def initSht(self, sht):
         self.sht = sht
@@ -93,17 +93,17 @@ class ExcelData(ExcelSht):
 
         if maxRow>self.headRow:
             lines=sht.Range(sht.Cells(self.headRow+1,1),sht.Cells(maxRow,maxCol)).Value
-            data=[]
-            for line in lines:
-                data.append(list(line))
+            data=pd.DataFrame(lines, columns=heads)
             self.data=data
+
             if self.primaryKeys:
                 self._keyRowDic={}
                 keyCols=[self._headColDic[item] for item in self.primaryKeys]
-                for iRow in range(len(self.data)):
+
+                for iRow in range(len(data)):
                     keys=[]
                     for iCol in keyCols:
-                        val=data[iRow][iCol]
+                        val=data.iloc[iRow,iCol]
                         if val:
                             keys.append(str(val))
                     if keys:
@@ -118,13 +118,44 @@ class ExcelData(ExcelSht):
 
         self.initSht(sht)
 
+    def printData(self):
+        dic=self.data.to_dict()
+        for x ,v in dic.items():
+            print(x,v)
+    def setCategories(self,head,categories:[]=None):
+        if categories:
+            self.data[head]=pd.Categorical(self.data[head],categories=categories)
     def setKeysValue(self, keys, head, value):
         key = self.KEY_BREAK.join(keys)
-        if key not in self._keyRowDic:
-            self.addKey(key)
-        self.data(self._keyRowDic[key], self._headColDic[head]).Value = value
+        col=self.self._headColDic.get(head,None)
+        row=self._keyRowDic.get(key,None)
+        if row==None or col==None:
+            return
+        self.data.iloc[row, col] = value
 
     def setRowValue(self, row, head, value):
         col = self._headColDic.get(head, None)
         if col!=None:
-            self.data[row][col] = value
+            self.data.iloc[row,col] = value
+    def sortValues(self,by:[],ascending=None):
+        if ascending:
+            self.data.sort_values(by=by,ascending=ascending,inplace=True)
+        else:
+            self.data.sort_values(by=by, inplace=True)
+
+if __name__=='__main__':
+    f=r"C:\Users\p1340814\Desktop\NCS 财务部\demo\record\项目记录表_2021.xlsx"
+    t=ExcelPandas()
+    t.primaryKeys='姓名,项目号,月份'.split(',')
+    excel=t.newExcel()
+    wkb=t.openWkb(excel,f,True)
+    sht=wkb.Sheets(2)
+    t.headRow=2
+    t.initSht(sht)
+    t.setCategories('月份','7月,5月,4月,6月,8月'.split(','))
+    t.setRowValue(0,'姓名','fdasfdafdasfd')
+    t.sortValues(['月份'])
+    # t.data.sort_values(by=['月份'],ascending=[True],inplace=True)
+    t.commit()
+
+    # t.closeAllExcel()

@@ -85,4 +85,4 @@ class ExcelUtil():
             return r
         return None
     def isDateTime(self,date):
-        return isinstance(date,datetime,datetime)
+        return isinstance(date,datetime.datetime)

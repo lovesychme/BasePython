@@ -41,7 +41,7 @@ class ExcelSht(ExcelUtil):
 
     def deleteContentRng(self):
         sht=self.sht
-        if self.maxCol<=self.headRow:
+        if self.maxRow<=self.headRow:
             return
         rng=sht.Rows(f'{self.headRow+1}:{self.maxRow}')
         self.deleteRngXlUp(rng)
@@ -96,6 +96,7 @@ class ExcelSht(ExcelUtil):
 
         dic = {}
         heads=sht.Range(sht.Cells(self.headRow,1),sht.Cells(self.headRow,maxCol)).Value[0]
+        self.heads = heads
         for i in range(len(heads)):
             val=heads[i]
             if val:
@@ -105,7 +106,7 @@ class ExcelSht(ExcelUtil):
         if self.primaryKeys:
             self._keyRowDic={}
             keyCols=[self._headColDic[item] for item in self.primaryKeys]
-            for iRow in range(self.headRow+1, self.maxRow+1):
+            for iRow in range(self.headRow+1, maxRow+1):
                 keys=[]
                 for iCol in keyCols:
                     val=sht.Cells(iRow,iCol).Value
