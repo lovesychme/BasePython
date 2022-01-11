@@ -12,6 +12,7 @@ class xlColor:
     BLUE=0xd59b5b
     LIGHT_BLUE_0=0xf0b000 #stand ligiht blue
     LIGHT_BLUE=0xf7ebdd  #80% light blue
+
     GOLD=0xc0ff
     LIGHT_GOLD=0xccf2ff  #80% light gold
 

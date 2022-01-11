@@ -16,8 +16,8 @@ class ExcelPandas(ExcelSht):
         self.primaryKeys: [] = None  # 行数据的关键字段
         self.heads: [] = None
 
-        self._headColDic: {} = None
-        self._keyRowDic: {} = None
+        self._headColDic: {} = {}
+        self._keyRowDic: {} = {}
 
         self.data:pd.DataFrame=None
 
@@ -91,13 +91,14 @@ class ExcelPandas(ExcelSht):
                 dic[val]=i
         self._headColDic=dic
 
+        self._keyRowDic = {}
         if maxRow>self.headRow:
             lines=sht.Range(sht.Cells(self.headRow+1,1),sht.Cells(maxRow,maxCol)).Value
             data=pd.DataFrame(lines, columns=heads)
             self.data=data
 
             if self.primaryKeys:
-                self._keyRowDic={}
+
                 keyCols=[self._headColDic[item] for item in self.primaryKeys]
 
                 for iRow in range(len(data)):
@@ -109,6 +110,8 @@ class ExcelPandas(ExcelSht):
                     if keys:
                         key=self.KEY_BREAK.join(keys)
                         self._keyRowDic[key]=iRow
+        else:
+            self.data=pd.DataFrame([],columns=heads)
 
     def new(self, sht):
         sht.Name = self.SHT_NAME

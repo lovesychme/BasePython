@@ -91,7 +91,6 @@ class ExcelSht(ExcelUtil):
 
     def initSht(self, sht):
         self.sht = sht
-        maxRow=self.maxRow
         maxCol=self.maxCol
 
         dic = {}
@@ -103,18 +102,7 @@ class ExcelSht(ExcelUtil):
                 dic[val]=i+1
         self._headColDic=dic
 
-        if self.primaryKeys:
-            self._keyRowDic={}
-            keyCols=[self._headColDic[item] for item in self.primaryKeys]
-            for iRow in range(self.headRow+1, maxRow+1):
-                keys=[]
-                for iCol in keyCols:
-                    val=sht.Cells(iRow,iCol).Value
-                    if val:
-                        keys.append(str(val))
-                if keys:
-                    key=self.KEY_BREAK.join(keys)
-                    self._keyRowDic[key]=iRow
+        self.resetKeyRowDic()
 
     def new(self, sht):
         sht.Name = self.SHT_NAME
@@ -126,6 +114,21 @@ class ExcelSht(ExcelUtil):
         # 填写Title
         self.setTitleRng()
         self.initSht(sht)
+    def resetKeyRowDic(self):
+        if self.primaryKeys:
+            sht=self.sht
+            maxRow=self.maxRow
+            self._keyRowDic = {}
+            keyCols = [self._headColDic[item] for item in self.primaryKeys]
+            for iRow in range(self.headRow + 1, maxRow + 1):
+                keys = []
+                for iCol in keyCols:
+                    val = sht.Cells(iRow, iCol).Value
+                    if val:
+                        keys.append(str(val))
+                if keys:
+                    key = self.KEY_BREAK.join(keys)
+                    self._keyRowDic[key] = iRow
 
     def setKeysValue(self, keys, head, value):
         key = self.KEY_BREAK.join(keys)
@@ -137,8 +140,10 @@ class ExcelSht(ExcelUtil):
         col=self._headColDic.get(head, None)
         if col:
             self.sht.Cells(row,col).Value=value
+    def setRngColor(self,rng,color):
+        rng.Interior.Color=color
 
-    def setValueColor(self,rng,value,color=None):
+    def setValueColor(self,rng,value=None,color=None):
         rng.Value=value
         rng.Interior.Color=color
 
