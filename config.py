@@ -3,6 +3,14 @@ import os
 
 class Config():
     def __init__(self,file='config.yml'):
+        prefix, suffix = os.path.split(file)
+        appdata = os.getenv('appdata')
+        if appdata or not os.path.exists(prefix) or not os.access(prefix, os.W_OK):
+            prefix = f'{appdata}\\NCS_Config'
+            self.mkDir(prefix)
+
+        file=f'{prefix}\\{suffix}'
+
         self.configData=None
         self.file=file
         if os.path.exists(file):
