@@ -2,11 +2,11 @@ import yaml
 import os
 
 class Config():
-    def __init__(self,file='config.yml'):
+    def __init__(self,file='config.yml',folderName='NCS_Config'):
         prefix, suffix = os.path.split(file)
         appdata = os.getenv('appdata')
         if appdata or not os.path.exists(prefix) or not os.access(prefix, os.W_OK):
-            prefix = f'{appdata}\\NCS_Config'
+            prefix = f'{appdata}\\{folderName}'
             self.mkDir(prefix)
 
         file=f'{prefix}\\{suffix}'
@@ -29,6 +29,12 @@ class Config():
                     data[x]={}
                 data=data[x]
         return data
+    def mkDir(self,dir):
+        if os.path.exists(dir):
+            return
+        prefix,_=os.path.split(dir)
+        self.mkDir(prefix)
+        os.mkdir(dir)
     def set(self,k,v):
         data = self.__getKeyData(k)
         data[k]=v
@@ -38,12 +44,12 @@ class Config():
             data[k].append(v)
         else:
             data[k]=[data[k],v]
-    def get(self,k):
+    def get(self,k,default=None):
         data = self.__getKeyData(k)
         if k in data:
             return data[k]
         else:
-            return None
+            return default
     def save(self):
         with open(self.file,'w') as f:
             yaml.dump(self.configData, f)
