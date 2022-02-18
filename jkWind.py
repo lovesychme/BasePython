@@ -236,7 +236,6 @@ class JKWind():
         return self
 
 if __name__=='__main__':
-
     wind=JKWind()
     wind=wind.waitTopWindowTx('Activation')
     wind.enumChilds()

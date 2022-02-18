@@ -1,0 +1,7 @@
+--PyInstaller:
+    1.NullWriter错误:
+        添加代码:
+        if "NullWriter" in str(type(sys.stdout)):
+            sys.stdout.closed = sys.stderr.closed = False
+    2.拒绝访问:
+        使用3.6版本
